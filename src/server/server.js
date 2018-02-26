@@ -171,25 +171,6 @@ app.use(
     })
 );
 
-// set user's uid - used to identify users in logs and some other places
-// FIXME SECURITY PRIVACY cycle this uid after a period of time
-app.use(function*(next) {
-    const last_visit = this.session.last_visit;
-    this.session.last_visit = (new Date().getTime() / 1000) | 0;
-    const from_link = this.request.headers.referer;
-    if (!this.session.uid) {
-        this.session.uid = secureRandom.randomBuffer(13).toString('hex');
-        this.session.new_visit = true;
-        if (from_link) this.session.r = from_link;
-    } else {
-        this.session.new_visit = this.session.last_visit - last_visit > 1800;
-        if (!this.session.r && from_link) {
-            this.session.r = from_link;
-        }
-    }
-    yield next;
-});
-
 useRedirects(app);
 useEnterAndConfirmEmailPages(app);
 useEnterAndConfirmMobilePages(app);
